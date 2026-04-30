@@ -1,0 +1,107 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "com.hogehoge.ats-mini",
+  "Name": "ATS-Mini",
+  "Version": "0.1.0.0",
+  "Author": "hogehoge",
+  "Description": "ATS-Mini DSP radio controller for Stream Deck.",
+  "Category": "ATS-Mini",
+  "CategoryIcon": "imgs/category-icon",
+  "CodePath": "bin/index.js",
+  "Icon": "imgs/category-icon",
+  "Actions": [
+    {
+      "UUID": "com.hogehoge.ats-mini.tune",
+      "Name": "ATS-Mini Tune",
+      "Icon": "imgs/actions/tune/action",
+      "Tooltip": "Tune ATS-Mini to a memory slot",
+      "PropertyInspectorPath": "ui/tune/inspector.html",
+      "Controllers": ["Keypad"],
+      "States": [
+        { "Image": "imgs/actions/tune/action", "Title": "" }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.ats-mini.vol-up",
+      "Name": "ATS-Mini Vol+",
+      "Icon": "imgs/actions/vol-up/action",
+      "Tooltip": "Hold to raise ATS-Mini volume",
+      "Controllers": ["Keypad"],
+      "States": [
+        { "Image": "imgs/actions/vol-up/action", "Title": "Vol+" }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.ats-mini.vol-down",
+      "Name": "ATS-Mini Vol-",
+      "Icon": "imgs/actions/vol-down/action",
+      "Tooltip": "Hold to lower ATS-Mini volume",
+      "Controllers": ["Keypad"],
+      "States": [
+        { "Image": "imgs/actions/vol-down/action", "Title": "Vol-" }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.ats-mini.vol-mute",
+      "Name": "ATS-Mini Mute",
+      "Icon": "imgs/actions/vol-mute/action",
+      "Tooltip": "Toggle mute on ATS-Mini",
+      "Controllers": ["Keypad"],
+      "States": [
+        { "Image": "imgs/actions/vol-mute/action", "Title": "Mute" }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.ats-mini.display-toggle",
+      "Name": "ATS-Mini Display",
+      "Icon": "imgs/actions/tune/action",
+      "Tooltip": "Toggle ATS-Mini LCD on/off",
+      "Controllers": ["Keypad"],
+      "States": [
+        { "Image": "imgs/actions/tune/action", "Title": "" }
+      ]
+    },
+    {
+      "UUID": "com.hogehoge.ats-mini.status-panel",
+      "Name": "ATS-Mini Status",
+      "Icon": "imgs/actions/tune/action",
+      "Tooltip": "Display ATS-Mini status (Step / BW / AGC / Vol / AVC)",
+      "PropertyInspectorPath": "ui/status-panel/inspector.html",
+      "Controllers": ["Encoder"],
+      "States": [
+        { "Image": "imgs/actions/tune/action", "Title": "Status" }
+      ],
+      "Encoder": {
+        "layout": "layouts/status-panel.json",
+        "TriggerDescription": {
+          "Rotate": "",
+          "Push": "",
+          "LongTouch": ""
+        }
+      }
+    },
+    {
+      "UUID": "com.hogehoge.ats-mini.dial-tune",
+      "Name": "ATS-Mini Dial Tune",
+      "Icon": "imgs/actions/tune/action",
+      "Tooltip": "Scroll through station presets with the dial",
+      "PropertyInspectorPath": "ui/dial-tune/inspector.html",
+      "Controllers": ["Encoder"],
+      "States": [
+        { "Image": "imgs/actions/tune/action", "Title": "Dial Tune" }
+      ],
+      "Encoder": {
+        "layout": "layouts/dial-tune.json",
+        "TriggerDescription": {
+          "Rotate": "Select station",
+          "Push": "Tune to station",
+          "LongTouch": ""
+        }
+      }
+    }
+  ],
+  "OS": [{ "Platform": "mac", "MinimumVersion": "10.15" }],
+  "Software": { "MinimumVersion": "6.6" },
+  "SDKVersion": 2,
+  "Nodejs": { "Version": "20", "Debug": "enabled" }
+}

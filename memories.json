@@ -1,0 +1,5 @@
+[
+  { "band": "MW2",  "freq": 594000,   "mode": "AM" },
+  { "band": "49M",  "freq": 9740000,  "mode": "AM" },
+  { "band": "VHF",  "freq": 87900000, "mode": "FM" }
+]

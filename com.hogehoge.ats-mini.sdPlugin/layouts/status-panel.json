@@ -1,0 +1,11 @@
+{
+  "id": "com.hogehoge.ats-mini.status-panel-layout",
+  "items": [
+    {
+      "key": "status-display",
+      "type": "pixmap",
+      "rect": [0, 0, 200, 92],
+      "zOrder": 1
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+com.hogehoge.ats-mini.sdPlugin/bin/
+*.js.map
+.DS_Store
+com.hogehoge.ats-mini.sdPlugin/logs/
+# Claude Code session files (contain local paths and personal info)
+session.md
+*.session.md
+20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*.txt

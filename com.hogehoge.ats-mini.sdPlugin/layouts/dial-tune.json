@@ -1,0 +1,75 @@
+{
+  "id": "com.hogehoge.ats-mini.dial-tune-layout",
+  "items": [
+    {
+      "key": "border",
+      "type": "pixmap",
+      "rect": [0, 0, 200, 92],
+      "zOrder": 2
+    },
+    {
+      "key": "header",
+      "type": "pixmap",
+      "rect": [0, 2, 200, 16],
+      "zOrder": 1
+    },
+    {
+      "key": "freq-display",
+      "type": "pixmap",
+      "rect": [0, 18, 200, 53],
+      "zOrder": 1
+    },
+    {
+      "key": "n-label",
+      "type": "text",
+      "rect": [0, 71, 14, 10],
+      "alignment": "center",
+      "font": { "size": 10, "weight": 400 },
+      "color": "#ffffff",
+      "value": "N",
+      "zOrder": 1
+    },
+    {
+      "key": "snr-bar",
+      "type": "pixmap",
+      "rect": [16, 75, 150, 6],
+      "zOrder": 1
+    },
+    {
+      "key": "snr-num",
+      "type": "text",
+      "rect": [167, 71, 30, 10],
+      "alignment": "right",
+      "font": { "size": 10, "weight": 400 },
+      "color": "#ffffff",
+      "value": "0",
+      "zOrder": 1
+    },
+    {
+      "key": "s-label",
+      "type": "text",
+      "rect": [0, 81, 14, 9],
+      "alignment": "center",
+      "font": { "size": 9, "weight": 400 },
+      "color": "#ffffff",
+      "value": "S",
+      "zOrder": 1
+    },
+    {
+      "key": "rssi-bar",
+      "type": "pixmap",
+      "rect": [16, 83, 150, 6],
+      "zOrder": 1
+    },
+    {
+      "key": "rssi-num",
+      "type": "text",
+      "rect": [167, 81, 30, 9],
+      "alignment": "right",
+      "font": { "size": 9, "weight": 400 },
+      "color": "#ffffff",
+      "value": "0",
+      "zOrder": 1
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "ats-mini-ctrl",
+  "version": "0.1.0",
+  "description": "ATS-Mini serial controller / Stream Deck plugin",
+  "scripts": {
+    "cli": "tsx src/cli.ts",
+    "capture": "streamdeck stop com.hogehoge.ats-mini && tsx src/capture.ts ; streamdeck restart com.hogehoge.ats-mini",
+    "build": "rollup -c --bundleConfigAsCjs",
+    "watch": "rollup -c --bundleConfigAsCjs -w --watch.onEnd=\"streamdeck restart com.hogehoge.ats-mini\""
+  },
+  "dependencies": {
+    "serialport": "^12.0.0"
+  },
+  "devDependencies": {
+    "@elgato/streamdeck": "^2.0.4",
+    "@rollup/plugin-commonjs": "^26.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^22.0.0",
+    "rollup": "^4.0.0",
+    "tslib": "^2.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

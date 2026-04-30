@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      font-family: -apple-system, sans-serif;
+      font-size: 13px;
+      color: #ccc;
+      background: transparent;
+      margin: 0;
+      padding: 8px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    label { min-width: 60px; color: #bbb; }
+    select {
+      flex: 1;
+      background: #2a2a2a;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 4px 6px;
+      font-size: 13px;
+    }
+    .status { color: #aaa; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <label>Station</label>
+    <select id="slotSelect">
+      <option value="">-- Loading... --</option>
+    </select>
+  </div>
+  <div class="row">
+    <span class="status" id="status"></span>
+  </div>
+</body>
+<script>
+  var websocket, uuid, actionInfo;
+  var savedSlot = 1;
+
+  function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
+    uuid       = inUUID;
+    actionInfo = JSON.parse(inActionInfo);
+
+    websocket = new WebSocket('ws://127.0.0.1:' + inPort);
+    websocket.onopen = function() {
+      websocket.send(JSON.stringify({ event: inRegisterEvent, uuid: inUUID }));
+      websocket.send(JSON.stringify({ event: 'getSettings', context: uuid }));
+      sendToPlugin({ action: 'getMemories' });
+    };
+
+    websocket.onmessage = function(evt) {
+      var msg = JSON.parse(evt.data);
+      if (msg.event === 'didReceiveSettings') {
+        savedSlot = msg.payload.settings.slot || 1;
+      }
+      if (msg.event === 'sendToPropertyInspector' && msg.payload.action === 'memories') {
+        buildList(msg.payload.memories, savedSlot);
+      }
+    };
+  }
+
+  function sendToPlugin(payload) {
+    websocket.send(JSON.stringify({
+      event: 'sendToPlugin',
+      action: actionInfo.action,
+      context: uuid,
+      payload: payload
+    }));
+  }
+
+  function buildList(memories, selected) {
+    var sel = document.getElementById('slotSelect');
+    sel.innerHTML = '';
+    var count = 0;
+    memories.forEach(function(m, i) {
+      if (!m.freq) return;
+      var opt = document.createElement('option');
+      opt.value = String(i + 1);
+      opt.text = '[' + String(i + 1).padStart(2, ' ') + '] ' + m.band + '  ' + fmtFreq(m.freq, m.mode) + '  ' + m.mode;
+      sel.appendChild(opt);
+      count++;
+    });
+    sel.value = String(selected);
+    document.getElementById('status').textContent = count + ' stations loaded';
+  }
+
+  function fmtFreq(hz, mode) {
+    if (mode === 'FM') return (hz / 1000000).toFixed(1) + ' MHz';
+    if (hz >= 1000000) return (hz / 1000).toFixed(0) + ' kHz';
+    return (hz / 1000) + ' kHz';
+  }
+
+  document.getElementById('slotSelect').addEventListener('change', function() {
+    var slot = parseInt(this.value, 10);
+    savedSlot = slot;
+    websocket.send(JSON.stringify({
+      event: 'setSettings', context: uuid, payload: { slot: slot }
+    }));
+  });
+</script>
+</html>
