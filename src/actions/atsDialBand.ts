@@ -82,8 +82,8 @@ function bandRangeSvg(lo: number, hi: number, currentFreq: number): string {
     const mx = BAR_X + Math.max(1, Math.min(BAR_W - 1, Math.round((currentFreq - lo) / (hi - lo) * BAR_W)));
     out += `<rect x="${mx - 1}" y="${barY - 2}" width="2" height="8" fill="#ff4444" rx="0.5"/>`;
   }
-  out += `<text x="2" y="${TY}" font-family="monospace" font-size="10" fill="white">${loStr}</text>`;
-  out += `<text x="198" y="${TY}" font-family="monospace" font-size="10" fill="white" text-anchor="end">${hiStr}</text>`;
+  out += `<text x="2" y="${TY}" font-family="monospace" font-size="12" fill="white">${loStr}</text>`;
+  out += `<text x="198" y="${TY}" font-family="monospace" font-size="12" fill="white" text-anchor="end">${hiStr}</text>`;
   return svgB64(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20">${out}</svg>`);
 }
 
