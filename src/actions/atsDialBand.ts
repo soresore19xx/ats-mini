@@ -61,6 +61,7 @@ function bandCenterSvg(band: string, type: string, mode: string): string {
   if (band !== '---' && type && mode) {
     return svgB64(
       `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="52">` +
+      `<rect x="6" y="14" width="72" height="24" rx="6" fill="none" stroke="white" stroke-width="1.5"/>` +
       `<text x="42"  y="${y}" ${f} font-size="22" fill="white"   text-anchor="middle">${band}</text>` +
       `<text x="115" y="${y}" ${f} font-size="17" fill="#aaaaaa" text-anchor="middle">${type}</text>` +
       `<text x="172" y="${y}" ${f} font-size="17" fill="#aaaaaa" text-anchor="middle">${mode}</text>` +
