@@ -3,7 +3,7 @@ import { atsService } from '../atsService.js';
 import type { AtsStatus } from '../AtsSerial.js';
 import { svgB64, statusPanelSvg, knobSvg } from '../icons.js';
 
-type AtsStatusPanelSettings = { borderSide?: 'left' | 'right' | 'none' };
+type AtsStatusPanelSettings = { borderSide?: 'left' | 'right' | 'center' | 'none' };
 
 const SELECTABLE = [0, 1, 2, 3, 4];
 const CMDS: [string, string][] = [
@@ -21,7 +21,7 @@ export class AtsStatusPanel extends SingletonAction<AtsStatusPanelSettings> {
   private selectedIdx = 0; // index into SELECTABLE[]
   private editMode = false;
   private focused = false;
-  private borderSide: 'left' | 'right' | 'none' = 'none';
+  private borderSide: 'left' | 'right' | 'center' | 'none' = 'none';
   private act: any = null;
 
   override async onWillAppear(ev: WillAppearEvent<AtsStatusPanelSettings>): Promise<void> {

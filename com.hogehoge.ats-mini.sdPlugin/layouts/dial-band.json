@@ -1,0 +1,23 @@
+{
+  "id": "com.hogehoge.ats-mini.dial-band-layout",
+  "items": [
+    {
+      "key": "border",
+      "type": "pixmap",
+      "rect": [0, 0, 200, 92],
+      "zOrder": 2
+    },
+    {
+      "key": "header",
+      "type": "pixmap",
+      "rect": [0, 2, 200, 14],
+      "zOrder": 1
+    },
+    {
+      "key": "band-display",
+      "type": "pixmap",
+      "rect": [0, 16, 200, 74],
+      "zOrder": 1
+    }
+  ]
+}

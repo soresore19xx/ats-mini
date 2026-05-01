@@ -81,6 +81,25 @@
       }
     },
     {
+      "UUID": "com.hogehoge.ats-mini.dial-band",
+      "Name": "ATS-Mini Dial Band",
+      "Icon": "imgs/actions/tune/action",
+      "Tooltip": "Scroll through bands with the dial",
+      "PropertyInspectorPath": "ui/dial-band/inspector.html",
+      "Controllers": ["Encoder"],
+      "States": [
+        { "Image": "imgs/actions/tune/action", "Title": "Dial Band" }
+      ],
+      "Encoder": {
+        "layout": "layouts/dial-band.json",
+        "TriggerDescription": {
+          "Rotate": "Band up / down",
+          "Push": "",
+          "LongTouch": ""
+        }
+      }
+    },
+    {
       "UUID": "com.hogehoge.ats-mini.dial-tune",
       "Name": "ATS-Mini Dial Tune",
       "Icon": "imgs/actions/tune/action",

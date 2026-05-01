@@ -67,7 +67,7 @@ ${muted ? cross : waves}
 </svg>`;
 }
 
-export function statusPanelSvg(s: AtsStatus, selectedRow = -1, editMode = false, borderSide: 'left' | 'right' | 'none' = 'none'): string {
+export function statusPanelSvg(s: AtsStatus, selectedRow = -1, editMode = false, borderSide: 'left' | 'right' | 'center' | 'none' = 'none'): string {
   const rows: [string, string][] = [
     ['Step', s.step],
     ['BW',   s.bandwidth],
@@ -87,12 +87,13 @@ export function statusPanelSvg(s: AtsStatus, selectedRow = -1, editMode = false,
 <text x="192" y="${y}" fill="${isSelected && !isEdit ? '#ffee00' : 'white'}" font-size="14" font-family="monospace" text-anchor="end">${value}</text>`;
   }).join('\n');
   const C = '#888888';
+  const vertLines = borderSide === 'left'  ? `<line x1="0" y1="0" x2="0" y2="92" stroke="${C}" stroke-width="1"/>`
+                  : borderSide === 'right' ? `<line x1="199" y1="0" x2="199" y2="92" stroke="${C}" stroke-width="1"/>`
+                  : '';
   const border = borderSide === 'none' ? '' : [
     `<line x1="0" y1="0" x2="200" y2="0" stroke="${C}" stroke-width="1"/>`,
     `<line x1="0" y1="91" x2="200" y2="91" stroke="${C}" stroke-width="1"/>`,
-    borderSide === 'left'
-      ? `<line x1="0" y1="0" x2="0" y2="92" stroke="${C}" stroke-width="1"/>`
-      : `<line x1="199" y1="0" x2="199" y2="92" stroke="${C}" stroke-width="1"/>`,
+    vertLines,
   ].join('');
   return `<svg width="200" height="92" xmlns="http://www.w3.org/2000/svg">
 <rect width="200" height="92" fill="#000000"/>

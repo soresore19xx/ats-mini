@@ -33,9 +33,10 @@
 <body>
   <div class="row">
     <label>Mode</label>
-    <select id="autoTune">
-      <option value="true">Auto-tune on rotate</option>
-      <option value="false">Press to confirm</option>
+    <select id="tuningMode">
+      <option value="auto">Auto-tune on rotate</option>
+      <option value="confirm">Press to confirm</option>
+      <option value="vfo">VFO (free tune)</option>
     </select>
   </div>
   <div class="hint" id="hint">Turning the dial tunes immediately.</div>
@@ -44,6 +45,7 @@
     <select id="borderSide">
       <option value="none">None</option>
       <option value="left">Left side</option>
+      <option value="center">Center</option>
       <option value="right">Right side</option>
     </select>
   </div>
@@ -65,20 +67,22 @@
       var msg = JSON.parse(evt.data);
       if (msg.event === 'didReceiveSettings') {
         currentSettings = msg.payload.settings || {};
-        var autoTune = currentSettings.autoTune;
-        if (autoTune === undefined) autoTune = true;
-        document.getElementById('autoTune').value = String(autoTune);
-        updateHint(autoTune);
+        var mode = currentSettings.vfoMode ? 'vfo'
+          : (currentSettings.autoTune === false ? 'confirm' : 'auto');
+        document.getElementById('tuningMode').value = mode;
+        updateHint(mode);
         document.getElementById('borderSide').value = currentSettings.borderSide || 'none';
       }
     };
   }
 
-  function updateHint(autoTune) {
+  function updateHint(mode) {
     var hint = document.getElementById('hint');
-    hint.textContent = (autoTune === true || autoTune === 'true')
-      ? 'Turning the dial tunes immediately.'
-      : 'Turn to select, press dial to tune.';
+    hint.textContent = mode === 'vfo'
+      ? 'Dial tunes by one step per tick (step set on device).'
+      : mode === 'confirm'
+        ? 'Turn to select preset, press dial to tune.'
+        : 'Turning the dial tunes immediately.';
   }
 
   function saveSettings() {
@@ -89,10 +93,11 @@
     }));
   }
 
-  document.getElementById('autoTune').addEventListener('change', function() {
-    var autoTune = this.value === 'true';
-    updateHint(autoTune);
-    currentSettings.autoTune = autoTune;
+  document.getElementById('tuningMode').addEventListener('change', function() {
+    var mode = this.value;
+    updateHint(mode);
+    currentSettings.vfoMode  = (mode === 'vfo');
+    currentSettings.autoTune = (mode === 'auto');
     saveSettings();
   });
 

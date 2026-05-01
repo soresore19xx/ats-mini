@@ -5,6 +5,7 @@ import { AtsVolUp } from './actions/atsVolUp.js';
 import { AtsVolDown } from './actions/atsVolDown.js';
 import { AtsVolMute } from './actions/atsVolMute.js';
 import { AtsDialTune } from './actions/atsDialTune.js';
+import { AtsDialBand } from './actions/atsDialBand.js';
 import { AtsDisplayToggle } from './actions/atsDisplayToggle.js';
 import { AtsStatusPanel } from './actions/atsStatusPanel.js';
 
@@ -33,6 +34,7 @@ streamDeck.actions.registerAction(new AtsVolUp());
 streamDeck.actions.registerAction(new AtsVolDown());
 streamDeck.actions.registerAction(new AtsVolMute());
 streamDeck.actions.registerAction(new AtsDialTune());
+streamDeck.actions.registerAction(new AtsDialBand());
 streamDeck.actions.registerAction(new AtsDisplayToggle());
 streamDeck.actions.registerAction(new AtsStatusPanel());
 

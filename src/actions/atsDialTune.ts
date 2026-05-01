@@ -5,154 +5,19 @@ import { AtsStatus, Memory } from '../AtsSerial.js';
 import { readFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { svgB64, knobSvg } from '../icons.js';
+import { knobSvg } from '../icons.js';
+import { getStrength, freqParts, seg7svg, makeHeaderSvg, makeBorderSvg, rssiBandSvg, volBarSvg, snrBarSvg } from '../dialDisplay.js';
+import { svgB64 } from '../icons.js';
 
 const MEMORIES_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'memories.json');
 
-function getStrength(rssi: number, mode: string): number {
-  if (mode !== 'FM') {
-    if (rssi <=  1) return  1; if (rssi <=  2) return  2;
-    if (rssi <=  3) return  3; if (rssi <=  4) return  4;
-    if (rssi <= 10) return  5; if (rssi <= 16) return  6;
-    if (rssi <= 22) return  7; if (rssi <= 28) return  8;
-    if (rssi <= 34) return  9; if (rssi <= 44) return 10;
-    if (rssi <= 54) return 11; if (rssi <= 64) return 12;
-    if (rssi <= 74) return 13; if (rssi <= 84) return 14;
-    if (rssi <= 94) return 15; if (rssi <= 95) return 16;
-    return 17;
-  } else {
-    if (rssi <=  1) return  1; if (rssi <=  2) return  7;
-    if (rssi <=  8) return  8; if (rssi <= 14) return  9;
-    if (rssi <= 24) return 10; if (rssi <= 34) return 11;
-    if (rssi <= 44) return 12; if (rssi <= 54) return 13;
-    if (rssi <= 64) return 14; if (rssi <= 74) return 15;
-    if (rssi <= 76) return 16;
-    return 17;
-  }
+function parseStepHz(desc: string): number {
+  if (desc.endsWith('M')) return parseInt(desc) * 1000000;
+  if (desc.endsWith('k')) return parseInt(desc) * 1000;
+  return parseInt(desc);
 }
 
-function freqParts(freq: number, mode: string): { num: string; unit: string } {
-  if (mode === 'FM') return { num: (freq / 1000000).toFixed(1), unit: 'MHz' };
-  if (freq >= 1000000) return { num: (freq / 1000).toFixed(0), unit: 'kHz' };
-  return { num: String(freq / 1000), unit: 'kHz' };
-}
-
-const SEGS: Record<string, string> = {
-  '0': 'abcdef', '1': 'bc',     '2': 'abdeg',  '3': 'abcdg',
-  '4': 'bcfg',   '5': 'acdfg',  '6': 'acdefg', '7': 'abc',
-  '8': 'abcdefg','9': 'abcdfg', '.': '.',       '-': 'g',
-};
-
-function seg7svg(numStr: string, unit: string, svgW: number, svgH: number): string {
-  const n = (v: number) => v.toFixed(1);
-  const DH = svgH * 0.65;
-  const DW = DH * 0.56;
-  const T  = Math.max(3, DH * 0.10);
-  const DOT = T * 1.6;
-  const CG = 3;
-
-  let numTotalW = 0;
-  for (const c of numStr) numTotalW += (c === '.' ? DOT : DW) + CG;
-  const unitSize = DH * 0.50;
-  const unitW = unit.length * unitSize * 0.68;
-  const totalW = numTotalW + 4 + unitW;
-
-  let cx = (svgW - totalW) / 2;
-  const oy = (svgH - DH) / 2;
-  let out = '';
-
-  for (const c of numStr) {
-    if (c === '.') {
-      out += `<rect x="${n(cx)}" y="${n(oy+DH-DOT)}" width="${n(DOT)}" height="${n(DOT)}" fill="white" rx="1"/>`;
-      cx += DOT + CG;
-    } else {
-      const on = SEGS[c] ?? '';
-      for (const [id, x, y, w, h] of [
-        ['a', cx+T+1,   oy,           DW-2*T-2, T  ],
-        ['b', cx+DW-T,  oy+T+1,       T, DH/2-T-2  ],
-        ['c', cx+DW-T,  oy+DH/2+1,    T, DH/2-T-2  ],
-        ['d', cx+T+1,   oy+DH-T,      DW-2*T-2, T  ],
-        ['e', cx,       oy+DH/2+1,    T, DH/2-T-2  ],
-        ['f', cx,       oy+T+1,       T, DH/2-T-2  ],
-        ['g', cx+T+1,   oy+DH/2-T/2, DW-2*T-2, T  ],
-      ] as [string,number,number,number,number][]) {
-        out += `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" fill="${on.includes(id)?'white':'#1e1e1e'}" rx="1"/>`;
-      }
-      cx += DW + CG;
-    }
-  }
-
-  out += `<text x="${n(cx+4)}" y="${n(oy+DH-1)}" font-family="monospace" font-size="${n(unitSize)}" fill="white">${unit}</text>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}">${out}</svg>`;
-}
-
-function makeHeaderSvg(label: string, stereo = false): string {
-  const charW = 8.5;  // approximate char width for monospace font-size:14
-  const textW = label.length * charW;
-  const BADGE_W = 44, GAP = 5;
-  // with stereo badge: center the text+badge group at x=100
-  const groupW = stereo ? textW + GAP + BADGE_W : textW;
-  const groupStart = 100 - groupW / 2;
-  const textX = (groupStart + textW / 2).toFixed(1);
-  const badgeX = Math.round(groupStart + textW + GAP);
-  const badge = stereo
-    ? `<rect x="${badgeX}" y="1" width="${BADGE_W}" height="13" rx="3" fill="none" stroke="#ff3333" stroke-width="1.2"/>` +
-      `<text x="${badgeX + BADGE_W / 2}" y="11" font-family="monospace" font-size="9" fill="#ff3333" text-anchor="middle">STEREO</text>`
-    : '';
-  return svgB64(`<svg width="200" height="16" xmlns="http://www.w3.org/2000/svg">` +
-    `<text x="${textX}" y="13" font-family="monospace" font-size="14" fill="white" text-anchor="middle">${label}</text>` +
-    `${badge}</svg>`);
-}
-
-function makeBorderSvg(side: 'left' | 'right' | 'none'): string {
-  if (side === 'none') return svgB64(`<svg width="200" height="92" xmlns="http://www.w3.org/2000/svg"></svg>`);
-  const C = '#888888';
-  const top  = `<line x1="0" y1="0" x2="200" y2="0" stroke="${C}" stroke-width="1"/>`;
-  const bot  = `<line x1="0" y1="91" x2="200" y2="91" stroke="${C}" stroke-width="1"/>`;
-  const vert = side === 'left'
-    ? `<line x1="0" y1="0" x2="0" y2="92" stroke="${C}" stroke-width="1"/>`
-    : `<line x1="199" y1="0" x2="199" y2="92" stroke="${C}" stroke-width="1"/>`;
-  return svgB64(`<svg width="200" height="92" xmlns="http://www.w3.org/2000/svg">${top}${vert}${bot}</svg>`);
-}
-
-const SEG_W = 4, SEG_GAP = 1, SEG_STEP = SEG_W + SEG_GAP;
-const N_SEGS = 30; // 30 × 5px = 150px
-
-function rssiBandSvg(rssiBar: number): string {
-  const W = 150, H = 6;
-  const filled = Math.round(rssiBar / 100 * N_SEGS);
-  const split = Math.round(10 / 17 * N_SEGS); // S9 boundary ≈ seg 18
-  let out = `<rect width="${W}" height="${H}" fill="#111111"/>`;
-  for (let i = 0; i < N_SEGS; i++) {
-    const x = i * SEG_STEP;
-    const color = i < filled ? (i < split ? '#00ff00' : '#ff0000') : '#2a2a2a';
-    out += `<rect x="${x}" y="0" width="${SEG_W}" height="${H}" fill="${color}"/>`;
-  }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${out}</svg>`;
-}
-
-function volBarSvg(pct: number): string {
-  const W = 150, H = 6;
-  const fillX = Math.round(W * pct / 100);
-  const bg = `<rect width="${W}" height="${H}" fill="#333333" rx="1"/>`;
-  if (fillX <= 0) return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${bg}</svg>`;
-  const bar = `<rect width="${fillX}" height="${H}" fill="#55aaff" rx="1"/>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${bg}${bar}</svg>`;
-}
-
-function snrBarSvg(pct: number): string {
-  const W = 150, H = 6;
-  const filled = Math.round(pct / 100 * N_SEGS);
-  let out = `<rect width="${W}" height="${H}" fill="#111111"/>`;
-  for (let i = 0; i < N_SEGS; i++) {
-    const x = i * SEG_STEP;
-    const color = i < filled ? '#00ff00' : '#2a2a2a';
-    out += `<rect x="${x}" y="0" width="${SEG_W}" height="${H}" fill="${color}"/>`;
-  }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${out}</svg>`;
-}
-
-type DialTuneSettings = { autoTune?: boolean; slotIndex?: number; borderSide?: 'left' | 'right' | 'none' };
+type DialTuneSettings = { autoTune?: boolean; vfoMode?: boolean; slotIndex?: number; borderSide?: 'left' | 'right' | 'center' | 'none' };
 
 let memoriesCache: Memory[] | null = null;
 async function getMemories(): Promise<Memory[]> {
@@ -168,7 +33,7 @@ async function getMemories(): Promise<Memory[]> {
 export class AtsDialTune extends SingletonAction<DialTuneSettings> {
   private currentIdx = 0;
   private autoTune = true;
-  private borderSide: 'left' | 'right' | 'none' = 'none';
+  private borderSide: 'left' | 'right' | 'center' | 'none' = 'none';
   private currentRssi = 0;
   private currentSnr = 0;
   private currentVolume = 0;
@@ -176,6 +41,10 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
   private currentMode = 'AM';
   private currentBand = '';
   private currentStereo = false;
+  private currentStep = '9k';
+  private vfoMode = false;
+  private vfoThrottleTimer: ReturnType<typeof setTimeout> | null = null;
+  private vfoTargetFreq = 0;
   private previewUntil = 0;
   private statusListener: ((s: AtsStatus) => void) | null = null;
   private lastAction: unknown = null;
@@ -190,7 +59,8 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
   private flashUntil = 0;
 
   override async onWillAppear(ev: WillAppearEvent<DialTuneSettings>): Promise<void> {
-    this.autoTune = ev.payload.settings.autoTune ?? true;
+    this.vfoMode   = ev.payload.settings.vfoMode ?? false;
+    this.autoTune  = ev.payload.settings.autoTune ?? true;
     this.borderSide = ev.payload.settings.borderSide ?? 'none';
     this.currentIdx = ev.payload.settings.slotIndex ?? 0;
     this.lastAction = ev.action;
@@ -199,10 +69,23 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
       this.currentRssi = s.rssi;
       this.currentSnr = s.snr;
       this.currentVolume = s.volume;
-      this.currentFreq = s.freq * (s.mode === 'FM' ? 10000 : 1000);  // status packet is kHz(AM) or 10kHz(FM) → convert to Hz
       this.currentMode = s.mode;
       this.currentBand = s.band;
       this.currentStereo = s.stereo;
+      this.currentStep   = s.step;
+      const deviceFreq = s.freq * (s.mode === 'FM' ? 10000 : 1000);
+      if (this.vfoMode && this.vfoTargetFreq > 0) {
+        // VFO in-flight: hold currentFreq until device reaches target
+        if (Math.abs(deviceFreq - this.vfoTargetFreq) < parseStepHz(this.currentStep)) {
+          this.vfoTargetFreq = 0;
+          this.currentFreq = deviceFreq;
+        }
+        // else: don't touch currentFreq — keep the value we're dialing toward
+      } else if (!this.vfoMode && Date.now() < this.previewUntil) {
+        // preset mode preview: don't overwrite
+      } else {
+        this.currentFreq = deviceFreq;
+      }
       this.updateDisplay(this.lastAction).catch(() => {});
     };
     atsService.subscribe(this.statusListener);
@@ -221,7 +104,8 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
   }
 
   override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<DialTuneSettings>): Promise<void> {
-    this.autoTune = ev.payload.settings.autoTune ?? true;
+    this.vfoMode    = ev.payload.settings.vfoMode ?? false;
+    this.autoTune   = ev.payload.settings.autoTune ?? true;
     this.borderSide = ev.payload.settings.borderSide ?? 'none';
     await this.updateDisplay(ev.action);
   }
@@ -268,6 +152,20 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
       // optimistic update: reflect immediately without waiting for status packet
       this.currentVolume = Math.max(0, Math.min(63, this.currentVolume + ticks));
       await this.updateDisplay(ev.action);
+      return;
+    }
+
+    if (this.vfoMode) {
+      if (this.currentFreq === 0) return;
+      const stepHz = parseStepHz(this.currentStep);
+      this.currentFreq = Math.max(0, this.currentFreq + ev.payload.ticks * stepHz);
+      this.vfoTargetFreq = this.currentFreq;
+      await this.updateDisplay(ev.action);
+      if (this.vfoThrottleTimer) clearTimeout(this.vfoThrottleTimer);
+      this.vfoThrottleTimer = setTimeout(() => {
+        this.vfoThrottleTimer = null;
+        atsService.tune(this.currentFreq, this.currentMode);
+      }, 300);
       return;
     }
     const memories = await getMemories();
@@ -375,7 +273,8 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
     const idx = Math.min(this.currentIdx, memories.length - 1);
     const m = memories[idx];
     // during preview window show memory freq; otherwise track actual device frequency
-    const preview = Date.now() < this.previewUntil;
+    // VFO mode: always use currentFreq directly (previewUntil only protects currentFreq from status overwrite)
+    const preview = !this.vfoMode && Date.now() < this.previewUntil;
     const dispFreq = preview ? m.freq : (this.currentFreq > 0 ? this.currentFreq : m.freq);
     const dispMode = preview ? m.mode : (this.currentFreq > 0 ? this.currentMode : m.mode);
     const dispBand = preview ? m.band : (this.currentFreq > 0 ? this.currentBand : m.band);
@@ -383,8 +282,11 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
     const snrBar = Math.round(this.currentSnr * 45 / 128 / 49 * 100);
     const { num, unit } = freqParts(dispFreq, dispMode);
     const showStereo = !preview && this.currentStereo;
+    const headerLabel = this.vfoMode
+      ? `${dispBand} ${dispMode}  VFO`
+      : `${dispBand} ${dispMode}`;
     await action.setFeedback({
-      header: makeHeaderSvg(`${dispBand} ${dispMode}`, showStereo),
+      header: makeHeaderSvg(headerLabel, showStereo),
       'freq-display': svgB64(seg7svg(num, unit, 200, 54)),
       'snr-bar': svgB64(snrBarSvg(snrBar)),
       'snr-num': `${this.currentSnr}dB`,
