@@ -38,13 +38,41 @@ const SEGS: Record<string, string> = {
   'W': 'bcdef',
 };
 
-export function seg7svg(numStr: string, unit: string, svgW: number, svgH: number): string {
+export function seg7svg(numStr: string, unit: string, svgW: number, svgH: number, extraT = 0): string {
   const n = (v: number) => v.toFixed(1);
   const DH  = svgH * 0.65;
   const DW  = DH * 0.56;
-  const T   = Math.max(3, DH * 0.10);
+  const T   = Math.max(3, DH * 0.10) + extraT;
   const DOT = T * 1.6;
   const CG  = 3;
+
+  const poly = (pts: [number,number][], fill: string) =>
+    `<polygon points="${pts.map(([px,py]) => `${n(px)},${n(py)}`).join(' ')}" fill="${fill}"/>`;
+  // horizontal, inner=bottom ('a')
+  const segTop = (x: number, y: number, w: number, h: number, fill: string) => {
+    const c = h / 2;
+    return poly([[x,y],[x+w,y],[x+w,y+h-c],[x+w-c,y+h],[x+c,y+h],[x,y+h-c]], fill);
+  };
+  // horizontal, inner=top ('d')
+  const segBot = (x: number, y: number, w: number, h: number, fill: string) => {
+    const c = h / 2;
+    return poly([[x+c,y],[x+w-c,y],[x+w,y+c],[x+w,y+h],[x,y+h],[x,y+c]], fill);
+  };
+  // horizontal, inner=both ('g')
+  const segMid = (x: number, y: number, w: number, h: number, fill: string) => {
+    const c = h / 2;
+    return poly([[x+c,y],[x+w-c,y],[x+w,y+c],[x+w-c,y+h],[x+c,y+h],[x,y+c]], fill);
+  };
+  // vertical, inner=left ('b','c')
+  const segRight = (x: number, y: number, w: number, h: number, fill: string) => {
+    const c = w / 2;
+    return poly([[x+c,y],[x+w,y],[x+w,y+h],[x+c,y+h],[x,y+h-c],[x,y+c]], fill);
+  };
+  // vertical, inner=right ('e','f')
+  const segLeft = (x: number, y: number, w: number, h: number, fill: string) => {
+    const c = w / 2;
+    return poly([[x,y],[x+w-c,y],[x+w,y+c],[x+w,y+h-c],[x+w-c,y+h],[x,y+h]], fill);
+  };
 
   let numTotalW = 0;
   for (const c of numStr) numTotalW += (c === '.' ? DOT : DW) + CG;
@@ -62,17 +90,15 @@ export function seg7svg(numStr: string, unit: string, svgW: number, svgH: number
       cx += DOT + CG;
     } else {
       const on = SEGS[c] ?? '';
-      for (const [id, x, y, w, h] of [
-        ['a', cx+T+1,  oy,           DW-2*T-2, T         ],
-        ['b', cx+DW-T, oy+T+1,       T,        DH/2-T-2  ],
-        ['c', cx+DW-T, oy+DH/2+1,   T,        DH/2-T-2  ],
-        ['d', cx+T+1,  oy+DH-T,     DW-2*T-2, T         ],
-        ['e', cx,      oy+DH/2+1,   T,        DH/2-T-2  ],
-        ['f', cx,      oy+T+1,      T,        DH/2-T-2  ],
-        ['g', cx+T+1,  oy+DH/2-T/2, DW-2*T-2, T         ],
-      ] as [string, number, number, number, number][]) {
-        out += `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" fill="${on.includes(id) ? 'white' : '#1e1e1e'}" rx="1"/>`;
-      }
+      const G = 0;
+      const f = (id: string) => on.includes(id) ? 'white' : '#1e1e1e';
+      out += segTop  (cx+T+G,  oy,             DW-2*(T+G), T,              f('a'));
+      out += segRight(cx+DW-T, oy+T+G,         T,          DH/2-3*T/2-2*G, f('b'));
+      out += segRight(cx+DW-T, oy+DH/2+T/2+G, T,          DH/2-3*T/2-2*G, f('c'));
+      out += segBot  (cx+T+G,  oy+DH-T,       DW-2*(T+G), T,              f('d'));
+      out += segLeft (cx,      oy+DH/2+T/2+G, T,          DH/2-3*T/2-2*G, f('e'));
+      out += segLeft (cx,      oy+T+G,         T,          DH/2-3*T/2-2*G, f('f'));
+      out += segMid  (cx+T+G,  oy+DH/2-T/2,   DW-2*(T+G), T,              f('g'));
       cx += DW + CG;
     }
   }

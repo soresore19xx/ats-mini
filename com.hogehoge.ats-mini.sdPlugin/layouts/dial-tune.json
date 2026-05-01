@@ -16,13 +16,13 @@
     {
       "key": "freq-display",
       "type": "pixmap",
-      "rect": [0, 18, 200, 53],
+      "rect": [0, 18, 200, 55],
       "zOrder": 1
     },
     {
       "key": "n-label",
       "type": "text",
-      "rect": [0, 71, 14, 10],
+      "rect": [0, 73, 14, 10],
       "alignment": "center",
       "font": { "size": 10, "weight": 400 },
       "color": "#ffffff",
@@ -32,13 +32,13 @@
     {
       "key": "snr-bar",
       "type": "pixmap",
-      "rect": [16, 75, 150, 6],
+      "rect": [16, 77, 150, 6],
       "zOrder": 1
     },
     {
       "key": "snr-num",
       "type": "text",
-      "rect": [167, 71, 30, 10],
+      "rect": [167, 73, 30, 10],
       "alignment": "right",
       "font": { "size": 10, "weight": 400 },
       "color": "#ffffff",
@@ -48,7 +48,7 @@
     {
       "key": "s-label",
       "type": "text",
-      "rect": [0, 81, 14, 9],
+      "rect": [0, 83, 14, 9],
       "alignment": "center",
       "font": { "size": 9, "weight": 400 },
       "color": "#ffffff",
@@ -58,13 +58,13 @@
     {
       "key": "rssi-bar",
       "type": "pixmap",
-      "rect": [16, 83, 150, 6],
+      "rect": [16, 85, 150, 6],
       "zOrder": 1
     },
     {
       "key": "rssi-num",
       "type": "text",
-      "rect": [167, 81, 30, 9],
+      "rect": [167, 83, 30, 9],
       "alignment": "right",
       "font": { "size": 9, "weight": 400 },
       "color": "#ffffff",
