@@ -74,14 +74,15 @@ function bandRangeSvg(lo: number, hi: number, currentFreq: number): string {
   const loStr = fmtFreqCompact(lo);
   const hiStr = fmtFreqCompact(hi);
   // bar is placed between labels: ~38px margin each side
-  const BAR_X = 38, BAR_W = 124, barY = 6;
+  // text center at y=12, bar centered on same line
+  const TY = 12, BAR_X = 38, BAR_W = 124, barY = TY - 2;
   let out = `<rect x="${BAR_X}" y="${barY}" width="${BAR_W}" height="4" fill="#444444" rx="1"/>`;
   if (currentFreq > 0 && currentFreq >= lo && currentFreq <= hi && hi > lo) {
     const mx = BAR_X + Math.max(1, Math.min(BAR_W - 1, Math.round((currentFreq - lo) / (hi - lo) * BAR_W)));
     out += `<rect x="${mx - 1}" y="${barY - 2}" width="2" height="8" fill="#ff4444" rx="0.5"/>`;
   }
-  out += `<text x="2" y="8" font-family="monospace" font-size="10" fill="white" dominant-baseline="middle">${loStr}</text>`;
-  out += `<text x="198" y="8" font-family="monospace" font-size="10" fill="white" text-anchor="end" dominant-baseline="middle">${hiStr}</text>`;
+  out += `<text x="2" y="${TY}" font-family="monospace" font-size="10" fill="white" dominant-baseline="middle">${loStr}</text>`;
+  out += `<text x="198" y="${TY}" font-family="monospace" font-size="10" fill="white" text-anchor="end" dominant-baseline="middle">${hiStr}</text>`;
   return svgB64(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20">${out}</svg>`);
 }
 
