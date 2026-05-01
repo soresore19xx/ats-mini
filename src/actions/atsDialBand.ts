@@ -73,10 +73,12 @@ function bandCenterSvg(band: string, type: string, mode: string): string {
 function bandRangeSvg(lo: number, hi: number, currentFreq: number): string {
   const loStr = fmtFreqCompact(lo);
   const hiStr = fmtFreqCompact(hi);
-  let out = `<rect x="0" y="6" width="200" height="4" fill="#444444" rx="1"/>`;
+  // bar is placed between labels: ~38px margin each side
+  const BAR_X = 38, BAR_W = 124, barY = 6;
+  let out = `<rect x="${BAR_X}" y="${barY}" width="${BAR_W}" height="4" fill="#444444" rx="1"/>`;
   if (currentFreq > 0 && currentFreq >= lo && currentFreq <= hi && hi > lo) {
-    const mx = Math.max(1, Math.min(199, Math.round((currentFreq - lo) / (hi - lo) * 200)));
-    out += `<rect x="${mx - 1}" y="4" width="2" height="8" fill="#ff4444" rx="0.5"/>`;
+    const mx = BAR_X + Math.max(1, Math.min(BAR_W - 1, Math.round((currentFreq - lo) / (hi - lo) * BAR_W)));
+    out += `<rect x="${mx - 1}" y="${barY - 2}" width="2" height="8" fill="#ff4444" rx="0.5"/>`;
   }
   out += `<text x="2" y="8" font-family="monospace" font-size="10" fill="white" dominant-baseline="middle">${loStr}</text>`;
   out += `<text x="198" y="8" font-family="monospace" font-size="10" fill="white" text-anchor="end" dominant-baseline="middle">${hiStr}</text>`;
