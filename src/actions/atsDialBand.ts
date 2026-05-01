@@ -5,43 +5,37 @@ import { knobSvg, svgB64 } from '../icons.js';
 import { makeBorderSvg } from '../dialDisplay.js';
 
 // Firmware band list (Menu.cpp order) — lo/hi in Hz (AM/LSB/USB: kHz×1000, FM: 10kHz×10000)
-const BAND_LIST: Array<{ name: string; mode: string; lo: number; hi: number }> = [
-  { name: 'VHF',  mode: 'FM',  lo:  64_000_000, hi: 108_000_000 },
-  { name: 'ALL',  mode: 'AM',  lo:     150_000, hi:  30_000_000 },
-  { name: '11M',  mode: 'AM',  lo:  25_600_000, hi:  26_100_000 },
-  { name: '13M',  mode: 'AM',  lo:  21_500_000, hi:  21_900_000 },
-  { name: '15M',  mode: 'AM',  lo:  18_900_000, hi:  19_100_000 },
-  { name: '16M',  mode: 'AM',  lo:  17_400_000, hi:  18_100_000 },
-  { name: '19M',  mode: 'AM',  lo:  15_100_000, hi:  15_900_000 },
-  { name: '22M',  mode: 'AM',  lo:  13_500_000, hi:  13_900_000 },
-  { name: '25M',  mode: 'AM',  lo:  11_000_000, hi:  13_000_000 },
-  { name: '31M',  mode: 'AM',  lo:   9_000_000, hi:  11_000_000 },
-  { name: '41M',  mode: 'AM',  lo:   7_000_000, hi:   9_000_000 },
-  { name: '49M',  mode: 'AM',  lo:   5_000_000, hi:   7_000_000 },
-  { name: '60M',  mode: 'AM',  lo:   4_000_000, hi:   5_100_000 },
-  { name: '75M',  mode: 'AM',  lo:   3_500_000, hi:   4_000_000 },
-  { name: '90M',  mode: 'AM',  lo:   3_000_000, hi:   3_500_000 },
-  { name: 'MW3',  mode: 'AM',  lo:   1_700_000, hi:   3_500_000 },
-  { name: 'MW2',  mode: 'AM',  lo:     495_000, hi:   1_701_000 },
-  { name: 'MW1',  mode: 'AM',  lo:     150_000, hi:   1_800_000 },
-  { name: '160M', mode: 'LSB', lo:   1_800_000, hi:   2_000_000 },
-  { name: '80M',  mode: 'LSB', lo:   3_500_000, hi:   4_000_000 },
-  { name: '40M',  mode: 'LSB', lo:   7_000_000, hi:   7_300_000 },
-  { name: '30M',  mode: 'LSB', lo:  10_000_000, hi:  10_200_000 },
-  { name: '20M',  mode: 'USB', lo:  14_000_000, hi:  14_400_000 },
-  { name: '17M',  mode: 'USB', lo:  18_000_000, hi:  18_200_000 },
-  { name: '15M',  mode: 'USB', lo:  21_000_000, hi:  21_500_000 },
-  { name: '12M',  mode: 'USB', lo:  24_800_000, hi:  25_000_000 },
-  { name: '10M',  mode: 'USB', lo:  28_000_000, hi:  29_700_000 },
-  { name: 'CB',   mode: 'AM',  lo:  25_000_000, hi:  28_000_000 },
+const BAND_LIST: Array<{ name: string; type: string; mode: string; lo: number; hi: number }> = [
+  { name: 'VHF',  type: 'FM', mode: 'FM',  lo:  64_000_000, hi: 108_000_000 },
+  { name: 'ALL',  type: 'SW', mode: 'AM',  lo:     150_000, hi:  30_000_000 },
+  { name: '11M',  type: 'SW', mode: 'AM',  lo:  25_600_000, hi:  26_100_000 },
+  { name: '13M',  type: 'SW', mode: 'AM',  lo:  21_500_000, hi:  21_900_000 },
+  { name: '15M',  type: 'SW', mode: 'AM',  lo:  18_900_000, hi:  19_100_000 },
+  { name: '16M',  type: 'SW', mode: 'AM',  lo:  17_400_000, hi:  18_100_000 },
+  { name: '19M',  type: 'SW', mode: 'AM',  lo:  15_100_000, hi:  15_900_000 },
+  { name: '22M',  type: 'SW', mode: 'AM',  lo:  13_500_000, hi:  13_900_000 },
+  { name: '25M',  type: 'SW', mode: 'AM',  lo:  11_000_000, hi:  13_000_000 },
+  { name: '31M',  type: 'SW', mode: 'AM',  lo:   9_000_000, hi:  11_000_000 },
+  { name: '41M',  type: 'SW', mode: 'AM',  lo:   7_000_000, hi:   9_000_000 },
+  { name: '49M',  type: 'SW', mode: 'AM',  lo:   5_000_000, hi:   7_000_000 },
+  { name: '60M',  type: 'SW', mode: 'AM',  lo:   4_000_000, hi:   5_100_000 },
+  { name: '75M',  type: 'SW', mode: 'AM',  lo:   3_500_000, hi:   4_000_000 },
+  { name: '90M',  type: 'SW', mode: 'AM',  lo:   3_000_000, hi:   3_500_000 },
+  { name: 'MW3',  type: 'MW', mode: 'AM',  lo:   1_700_000, hi:   3_500_000 },
+  { name: 'MW2',  type: 'MW', mode: 'AM',  lo:     495_000, hi:   1_701_000 },
+  { name: 'MW1',  type: 'MW', mode: 'AM',  lo:     150_000, hi:   1_800_000 },
+  { name: '160M', type: 'MW', mode: 'LSB', lo:   1_800_000, hi:   2_000_000 },
+  { name: '80M',  type: 'SW', mode: 'LSB', lo:   3_500_000, hi:   4_000_000 },
+  { name: '40M',  type: 'SW', mode: 'LSB', lo:   7_000_000, hi:   7_300_000 },
+  { name: '30M',  type: 'SW', mode: 'LSB', lo:  10_000_000, hi:  10_200_000 },
+  { name: '20M',  type: 'SW', mode: 'USB', lo:  14_000_000, hi:  14_400_000 },
+  { name: '17M',  type: 'SW', mode: 'USB', lo:  18_000_000, hi:  18_200_000 },
+  { name: '15M',  type: 'SW', mode: 'USB', lo:  21_000_000, hi:  21_500_000 },
+  { name: '12M',  type: 'SW', mode: 'USB', lo:  24_800_000, hi:  25_000_000 },
+  { name: '10M',  type: 'SW', mode: 'USB', lo:  28_000_000, hi:  29_700_000 },
+  { name: 'CB',   type: 'SW', mode: 'AM',  lo:  25_000_000, hi:  28_000_000 },
 ];
 const N_BANDS = BAND_LIST.length;
-
-function getBandType(band: string): string {
-  if (band === 'VHF') return 'FM';
-  if (band === 'MW1' || band === 'MW2' || band === 'MW3' || band === '160M') return 'MW';
-  return 'SW';
-}
 
 function fmtFreqCompact(hz: number): string {
   if (hz >= 1_000_000) {
@@ -61,7 +55,7 @@ function bandCenterSvg(band: string, type: string, mode: string): string {
   if (band !== '---' && type && mode) {
     return svgB64(
       `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="52">` +
-      `<rect x="6" y="14" width="72" height="24" rx="6" fill="none" stroke="white" stroke-width="1.5"/>` +
+      `<rect x="${Math.round(42 - band.length * 6.6 - 5)}" y="14" width="${Math.round(band.length * 13.2 + 10)}" height="24" rx="5" fill="none" stroke="white" stroke-width="1.5"/>` +
       `<text x="42"  y="${y}" ${f} font-size="22" fill="white"   text-anchor="middle">${band}</text>` +
       `<text x="115" y="${y}" ${f} font-size="17" fill="#aaaaaa" text-anchor="middle">${type}</text>` +
       `<text x="172" y="${y}" ${f} font-size="17" fill="#aaaaaa" text-anchor="middle">${mode}</text>` +
@@ -151,8 +145,8 @@ export class AtsDialBand extends SingletonAction<DialBandSettings> {
   private async updateDisplay(action: any): Promise<void> {
     if (!action) return;
     const band = this.currentBand || '---';
-    const type = this.currentBand ? getBandType(this.currentBand) : '';
     const entry = this.currentBandIdx >= 0 ? BAND_LIST[this.currentBandIdx] : null;
+    const type = entry ? entry.type : '';
     const rangeSvg = entry
       ? bandRangeSvg(entry.lo, entry.hi, this.currentFreq)
       : bandRangeSvg(0, 1, 0);
