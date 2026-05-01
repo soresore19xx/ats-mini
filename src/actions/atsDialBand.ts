@@ -76,7 +76,7 @@ function bandRangeSvg(lo: number, hi: number, currentFreq: number): string {
   // bar is placed between labels: ~38px margin each side
   // font-size=10 monospace: ascender≈8px, so baseline=TY gives text center≈TY-4
   // target center = 10 → baseline TY=14, bar center=10 → barY=8
-  const TY = 14, BAR_X = 32, BAR_W = 136, barY = 8;
+  const TY = 14, BAR_X = 32, BAR_W = 128, barY = 8;
   let out = `<rect x="${BAR_X}" y="${barY}" width="${BAR_W}" height="4" fill="#444444" rx="1"/>`;
   if (currentFreq > 0 && currentFreq >= lo && currentFreq <= hi && hi > lo) {
     const mx = BAR_X + Math.max(1, Math.min(BAR_W - 1, Math.round((currentFreq - lo) / (hi - lo) * BAR_W)));
