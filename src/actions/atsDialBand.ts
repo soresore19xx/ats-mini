@@ -73,7 +73,7 @@ function bandCenterSvg(band: string, type: string, mode: string): string {
 function bandRangeSvg(lo: number, hi: number, currentFreq: number): string {
   const loStr = fmtFreqCompact(lo);
   const hiStr = fmtFreqCompact(hi);
-  let out = `<rect x="0" y="6" width="200" height="4" fill="#1e1e1e" rx="1"/>`;
+  let out = `<rect x="0" y="6" width="200" height="4" fill="#444444" rx="1"/>`;
   if (currentFreq > 0 && currentFreq >= lo && currentFreq <= hi && hi > lo) {
     const mx = Math.max(1, Math.min(199, Math.round((currentFreq - lo) / (hi - lo) * 200)));
     out += `<rect x="${mx - 1}" y="4" width="2" height="8" fill="#ff4444" rx="0.5"/>`;
