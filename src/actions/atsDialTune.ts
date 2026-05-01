@@ -255,7 +255,7 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
       const volPct = Math.round(Math.min(this.currentVolume, 63) / 63 * 100);
       await action.setFeedback({
         header: makeHeaderSvg('─── VOL MODE ───'),
-        'freq-display': svgB64(seg7svg(String(this.currentVolume), '', 200, 56, 1)),
+        'freq-display': svgB64(seg7svg(String(this.currentVolume), '', 200, 56, 1, 1.06)),
         'rssi-bar': svgB64(volBarSvg(volPct)),
         'rssi-num': String(this.currentVolume),
         's-label': 'V',
@@ -287,7 +287,7 @@ export class AtsDialTune extends SingletonAction<DialTuneSettings> {
       : `${dispBand} ${dispMode}`;
     await action.setFeedback({
       header: makeHeaderSvg(headerLabel, showStereo),
-      'freq-display': svgB64(seg7svg(num, unit, 200, 56, 1)),
+      'freq-display': svgB64(seg7svg(num, unit, 200, 56, 1, 1.06)),
       'snr-bar': svgB64(snrBarSvg(snrBar)),
       'snr-num': `${this.currentSnr}dB`,
       'rssi-bar': svgB64(rssiBandSvg(rssiBar)),

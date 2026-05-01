@@ -38,9 +38,9 @@ const SEGS: Record<string, string> = {
   'W': 'bcdef',
 };
 
-export function seg7svg(numStr: string, unit: string, svgW: number, svgH: number, extraT = 0): string {
+export function seg7svg(numStr: string, unit: string, svgW: number, svgH: number, extraT = 0, scale = 1.0): string {
   const n = (v: number) => v.toFixed(1);
-  const DH  = svgH * 0.65;
+  const DH  = svgH * 0.65 * scale;
   const DW  = DH * 0.56;
   const T   = Math.max(3, DH * 0.10) + extraT;
   const DOT = T * 1.6;
