@@ -68,17 +68,21 @@ function bandCenterSvg(band: string, type: string, mode: string): string {
 function bandRangeSvg(lo: number, hi: number, currentFreq: number): string {
   const loStr = fmtFreqCompact(lo);
   const hiStr = fmtFreqCompact(hi);
-  // bar is placed between labels: ~38px margin each side
-  // font-size=10 monospace: ascender≈8px, so baseline=TY gives text center≈TY-4
-  // target center = 10 → baseline TY=14, bar center=10 → barY=8
-  const TY = 14, BAR_X = 32, BAR_W = 128, barY = 8;
-  let out = `<rect x="${BAR_X}" y="${barY}" width="${BAR_W}" height="4" fill="#444444" rx="1"/>`;
-  if (currentFreq > 0 && currentFreq >= lo && currentFreq <= hi && hi > lo) {
-    const mx = BAR_X + Math.max(1, Math.min(BAR_W - 1, Math.round((currentFreq - lo) / (hi - lo) * BAR_W)));
-    out += `<rect x="${mx - 1}" y="${barY - 2}" width="2" height="8" fill="#ff4444" rx="0.5"/>`;
+  const charW = 9, MARGIN = 2, GAP = 3, CR = 3, lineY = 10, TY = 14;
+  const loX   = MARGIN;
+  const hiX   = Math.round(200 - MARGIN - hiStr.length * charW);
+  const BAR_X  = Math.round(loX + loStr.length * charW + GAP + CR);
+  const BAR_END = hiX - GAP - CR;
+  const BAR_W  = BAR_END - BAR_X;
+  let out = `<line x1="${BAR_X}" y1="${lineY}" x2="${BAR_END}" y2="${lineY}" stroke="white" stroke-width="1" stroke-dasharray="1,1"/>`;
+  out += `<circle cx="${BAR_X}" cy="${lineY}" r="3" fill="none" stroke="white" stroke-width="1"/>`;
+  out += `<circle cx="${BAR_END}" cy="${lineY}" r="3" fill="none" stroke="white" stroke-width="1"/>`;
+  if (currentFreq > 0 && currentFreq >= lo && currentFreq <= hi && hi > lo && BAR_W > 0) {
+    const mx = BAR_X + Math.max(2, Math.min(BAR_W - 2, Math.round((currentFreq - lo) / (hi - lo) * BAR_W)));
+    out += `<circle cx="${mx}" cy="${lineY}" r="3" fill="#ff4444"/>`;
   }
-  out += `<text x="2" y="${TY}" font-family="monospace" font-size="12" fill="white">${loStr}</text>`;
-  out += `<text x="198" y="${TY}" font-family="monospace" font-size="12" fill="white" text-anchor="end">${hiStr}</text>`;
+  out += `<text x="${loX}" y="${TY}" font-family="monospace" font-size="12" fill="white">${loStr}</text>`;
+  out += `<text x="${hiX}" y="${TY - 1}" font-family="monospace" font-size="12" fill="white">${hiStr}</text>`;
   return svgB64(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20">${out}</svg>`);
 }
 
