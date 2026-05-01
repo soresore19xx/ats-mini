@@ -317,16 +317,19 @@ LCD flash messages are protected by a `flashUntil` guard — RSSI status updates
 
 #### LCD display layout
 
-The encoder LCD shows a custom layout (`layouts/dial-band.json`):
+The encoder LCD shows a custom layout (`layouts/dial-band.json`, 4 layers):
 
 | Area | Content |
 |------|---------|
 | Header | `── BAND ──` |
-| Center | Band name / type / mode in monospace text |
+| Center | Band name (white rounded-rect border) / type / mode in monospace text |
+| Bottom | Frequency range gauge: lo–hi bar with current frequency marker |
 
-Center row: band name in white (larger font, left), band type in gray (center), mode in gray (right).
+Center row: band name in white (large font, framed in a white rounded-rect border whose width tracks the name length), band type in gray, mode in gray.
 
 Type values: `FM` (VHF only), `MW` (MW1 / MW2 / MW3 / 160M), `SW` (all other bands).
+
+Bottom row (200×20 px): a horizontal bar spanning the band's full frequency range, with lo/hi labels at each end. When the device frequency is known, a red vertical marker shows the current position within the band. The marker is hidden during optimistic band switches and reappears once the next status packet confirms the actual frequency.
 
 #### Firmware band list
 
@@ -428,7 +431,8 @@ F{Hz}[,{mode}]\r  optional mode, auto band-switch across all bands
 ```
 
 - Optional `,{mode}` parameter (e.g. `F594000,AM\r`, `F78000000,FM\r`)
-- Scans all bands to find one covering the target frequency, then calls `tuneToMemory()`
+- Scans all bands to find one covering the target frequency using a two-pass search: the first pass skips the `ALL` band so specific bands take priority; if no specific band matches, a second pass includes `ALL` as a fallback
+- Calls `tuneToMemory()` with the matched band
 - When mode is omitted, the matched band's default mode is used
 
 #### `N` / `n` — AVC up / down (new, this fork pre-v1234)
