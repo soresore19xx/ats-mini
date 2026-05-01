@@ -16,7 +16,13 @@
     {
       "key": "band-display",
       "type": "pixmap",
-      "rect": [0, 16, 200, 74],
+      "rect": [0, 16, 200, 52],
+      "zOrder": 1
+    },
+    {
+      "key": "freq-range",
+      "type": "pixmap",
+      "rect": [0, 70, 200, 20],
       "zOrder": 1
     }
   ]
