@@ -4,7 +4,7 @@
 
 [ATS-Mini](https://github.com/esp32-si4732/ats-mini) is an excellent open-source DSP radio project based on ESP32 + SI4732/SI4735. It comes with a well-designed serial remote command API, and this plugin leverages that API to control the radio directly from a Stream Deck on macOS.
 
-> **Note:** Tuning is preset-based only — the plugin tunes to slots defined in `memories.json`. Continuous (VFO-style) frequency tuning is not supported.
+> **Note:** The Dial Tune action supports both preset-based tuning (slots from `memories.json`) and VFO-style continuous tuning. The Dial Band action switches between the 28 firmware bands.
 
 ---
 
@@ -230,7 +230,7 @@ The encoder LCD shows a 200×92px panel with five rows of radio parameters:
 - Accent color: blue (`#55aaff`) in navigate mode, orange (`#ffaa55`) in edit mode
 - Selected value: yellow (`#ffee00`) in navigate mode, white in edit mode
 - Parameter name labels: white (unselected), accent color (selected)
-- **Border:** configurable 1 px gray frame (Property Inspector: `None` / `Left side` / `Right side`)
+- **Border:** configurable 1 px gray frame (Property Inspector: `None` / `Left side` / `Center` / `Right side`)
 
 #### Editable parameters and commands
 
@@ -257,7 +257,7 @@ The encoder LCD shows a custom layout (`layouts/dial-tune.json`):
 
 | Area | Content |
 |------|---------|
-| Header | Band, mode, slot index (e.g. `VHF FM  13/25`) |
+| Header | Band, mode, slot index (e.g. `VHF FM  13/25`) — or `VHF FM  VFO` in VFO mode |
 | Center | Frequency in 7-segment style (large digits + unit) |
 | Bottom N row | SNR bar (`N`) + SNR value in dB |
 | Bottom S row | S-meter bar (`S`) + signal level in dB |
@@ -287,6 +287,7 @@ Volume display updates optimistically on each rotation tick (no wait for status 
 | Mode | Behavior |
 |------|----------|
 | TUNE MODE (default) | Scroll through memory presets; auto-tune on each tick (auto-tune on) or preview only (auto-tune off) |
+| VFO MODE | Each tick shifts current frequency by the active step size; tune command sent after 300ms debounce |
 | VOL MODE | Each tick sends `V` (up) or `v` (down) per tick count |
 
 #### Dial button gestures
@@ -302,9 +303,48 @@ Long-press timers are disabled in VOL MODE (single click always exits cleanly).
 LCD flash messages are protected by a `flashUntil` guard — RSSI status updates do not overwrite them while displayed.
 
 #### Settings (Property Inspector)
-- **Auto-tune:** toggle auto-tune on dial rotation (default: on)
+- **Auto-tune:** toggle auto-tune on dial rotation (default: on). Has no effect in VFO mode.
+- **VFO mode:** when enabled, dial rotation shifts frequency directly in step-size increments (VFO-style continuous tuning) instead of scrolling presets. Header shows `VFO` indicator instead of slot index.
 - **Slot:** persisted across sessions via Stream Deck settings
-- **Border:** draw a 1 px gray (`#888888`) frame on one edge of the LCD — `None` / `Left side` / `Right side`. Use this when placing two encoder actions side-by-side so each panel shows only its outer edge.
+- **Border:** draw a 1 px gray (`#888888`) frame on one edge of the LCD — `None` / `Left side` / `Center` / `Right side`. Use this when placing encoder actions side-by-side so each panel shows only its outer edge.
+
+---
+
+### Dial Band (Stream Deck+ encoder)
+- **UUID:** `com.hogehoge.ats-mini.dial-band`
+- **Controller:** Encoder (Stream Deck+)
+- **Dial button:** same realistic knob SVG as Dial Tune
+
+#### LCD display layout
+
+The encoder LCD shows a custom layout (`layouts/dial-band.json`):
+
+| Area | Content |
+|------|---------|
+| Header | `── BAND ──` |
+| Center | Band name / type / mode in monospace text |
+
+Center row: band name in white (larger font, left), band type in gray (center), mode in gray (right).
+
+Type values: `FM` (VHF only), `MW` (MW1 / MW2 / MW3 / 160M), `SW` (all other bands).
+
+#### Firmware band list
+
+The 28 bands cycle in the order defined in `Menu.cpp`:
+
+`VHF` `ALL` `11M` `13M` `15M` `16M` `19M` `22M` `25M` `31M` `41M` `49M` `60M` `75M` `90M` `MW3` `MW2` `MW1` `160M` `80M` `40M` `30M` `20M` `17M` `15M` `12M` `10M` `CB`
+
+Default modes: VHF=FM; MW1/MW2/MW3 and most SW bands=AM; 160M/80M/40M/30M=LSB; 20M/17M/15M(ham)/12M/10M=USB; CB=AM.
+
+> `15M` appears twice — once as an AM shortwave broadcast band and once as the 15m ham band (USB).
+
+#### Dial rotation
+
+- Each tick rotates through the 28 bands (sends `B` per tick forward, `b` per tick backward).
+- The LCD updates immediately (optimistic update from the local `BAND_LIST` array mirroring the firmware order); confirmed by the next status packet (500ms).
+
+#### Settings (Property Inspector)
+- **Border:** draw a 1 px gray (`#888888`) frame — `None` / `Left side` / `Center` / `Right side`
 
 ---
 
@@ -434,20 +474,27 @@ ats-mini/
 │   ├── index.ts               # Entry point (single-instance guard, EPIPE handling)
 │   ├── AtsSerial.ts           # SerialPort wrapper (auto-detect, event emitter)
 │   ├── atsService.ts          # Singleton service (connection, reconnect, shared LCD state)
-│   ├── icons.ts               # SVG icon generators for all buttons
+│   ├── icons.ts               # SVG icon generators for all buttons and Status Panel
+│   ├── dialDisplay.ts         # Shared encoder LCD helpers (seg7svg, bars, borders, headers)
 │   └── actions/
 │       ├── atsTune.ts         # Memory preset tune
 │       ├── atsVolUp.ts        # Volume up (hold)
 │       ├── atsVolDown.ts      # Volume down (hold)
 │       ├── atsVolMute.ts      # Mute toggle
 │       ├── atsDisplayToggle.ts# LCD ON/OFF toggle
-│       ├── atsDialTune.ts     # Dial encoder (7-seg display, S-meter, long-press gestures)
+│       ├── atsDialTune.ts     # Dial Tune encoder (7-seg freq, S-meter, VFO mode, long-press)
+│       ├── atsDialBand.ts     # Dial Band encoder (band switching, optimistic update)
 │       └── atsStatusPanel.ts  # Status panel (Step/BW/AGC/Vol/AVC, dial navigation/edit)
 ├── com.hogehoge.ats-mini.sdPlugin/
 │   ├── manifest.json          # Plugin manifest
 │   ├── layouts/
 │   │   ├── dial-tune.json     # Custom encoder LCD layout (Dial Tune)
+│   │   ├── dial-band.json     # Custom encoder LCD layout (Dial Band)
 │   │   └── status-panel.json  # Custom encoder LCD layout (Status Panel)
+│   ├── ui/
+│   │   ├── dial-tune/         # Property Inspector for Dial Tune
+│   │   ├── dial-band/         # Property Inspector for Dial Band
+│   │   └── status-panel/      # Property Inspector for Status Panel
 │   ├── bin/                   # Build output (not tracked)
 │   └── ...
 ├── memories.json              # Tuning presets
