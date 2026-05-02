@@ -48,31 +48,17 @@ export function seg7svg(numStr: string, unit: string, svgW: number, svgH: number
 
   const poly = (pts: [number,number][], fill: string) =>
     `<polygon points="${pts.map(([px,py]) => `${n(px)},${n(py)}`).join(' ')}" fill="${fill}"/>`;
-  // horizontal, inner=bottom ('a')
-  const segTop = (x: number, y: number, w: number, h: number, fill: string) => {
-    const c = h / 2;
+  // 全セグメント共通: 上2角は90°、下2角だけ45°カット
+  const seg = (x: number, y: number, w: number, h: number, fill: string) => {
+    const c = Math.min(w, h) / 2;
     return poly([[x,y],[x+w,y],[x+w,y+h-c],[x+w-c,y+h],[x+c,y+h],[x,y+h-c]], fill);
   };
-  // horizontal, inner=top ('d')
-  const segBot = (x: number, y: number, w: number, h: number, fill: string) => {
-    const c = h / 2;
-    return poly([[x+c,y],[x+w-c,y],[x+w,y+c],[x+w,y+h],[x,y+h],[x,y+c]], fill);
-  };
-  // horizontal, inner=both ('g')
-  const segMid = (x: number, y: number, w: number, h: number, fill: string) => {
-    const c = h / 2;
-    return poly([[x+c,y],[x+w-c,y],[x+w,y+c],[x+w-c,y+h],[x+c,y+h],[x,y+c]], fill);
-  };
-  // vertical, inner=left ('b','c')
-  const segRight = (x: number, y: number, w: number, h: number, fill: string) => {
-    const c = w / 2;
-    return poly([[x+c,y],[x+w,y],[x+w,y+h],[x+c,y+h],[x,y+h-c],[x,y+c]], fill);
-  };
-  // vertical, inner=right ('e','f')
-  const segLeft = (x: number, y: number, w: number, h: number, fill: string) => {
-    const c = w / 2;
-    return poly([[x,y],[x+w-c,y],[x+w,y+c],[x+w,y+h-c],[x+w-c,y+h],[x,y+h]], fill);
-  };
+  const segTop   = seg;
+  const segBot   = (x: number, y: number, w: number, h: number, fill: string) =>
+    seg(x, y, w, h, fill);
+  const segMid   = seg;
+  const segRight = seg;
+  const segLeft  = seg;
 
   let numTotalW = 0;
   for (const c of numStr) numTotalW += (c === '.' ? DOT : DW) + CG;
